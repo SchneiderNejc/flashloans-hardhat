@@ -14,7 +14,7 @@ module.exports = {
     hardhat: {
       forking: {
         // GOTTA UPDATE THE FOLLOWING LINE TO FORK!!
-        url: MORALIS_RPC,
+        url: process.env.MORALIS_RPC,
         // blockNumber: 14390000
       },
     },
