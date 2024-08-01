@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -12,7 +13,9 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: "https://bsc-dataseed3.binance.org/",
+        // GOTTA UPDATE THE FOLLOWING LINE TO FORK!!
+        url: MORALIS_RPC,
+        // blockNumber: 14390000
       },
     },
     testnet: {
