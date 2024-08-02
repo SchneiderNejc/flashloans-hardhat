@@ -76,5 +76,32 @@ contract FlashSwap {
 
         return amountReceived;
     }
+
+    // INITIATE ARBITRAGE
+    // Begins receiving loan to perform arbitrage trades
+    function startArbitrage(address _tokenBorrow, uint _amount) external {
+        IERC20(WBNB).safeApprove(address(PANCAKE_ROUTER), UINT_MAX);
+        IERC20(BUSD).safeApprove(address(PANCAKE_ROUTER), UINT_MAX);
+        IERC20(USDC).safeApprove(address(PANCAKE_ROUTER), UINT_MAX);
+        IERC20(CAKE).safeApprove(address(PANCAKE_ROUTER), UINT_MAX);
+
+        // Get the Factory Pair address for combined tokens
+        address pair = IUniswapV2Factory(PANCAKE_FACTORY).getPair(_tokenBorrow, WBNB);
+    
+        // Return error if combination does not exist
+        require(pair != address(0), "Pool does not exist");
+
+        // fIGURE OUT WHICH TOKEN (0 OR 1) has the amount and assign
+        address token0 = IUniswapV2Pair(pair).token0();
+        address token1 = IUniswapV2Pair(pair).token1();
+        uint256 amount0Out = _tokenBorrow == token0 ? _amount : 0;
+        uint256 amount1Out = _tokenBorrow == token1 ? _amount : 0;
+
+        // Passing data as bytes so that the 'swap' function knows it is a flashloan
+        bytes memory data = abi.encode(_tokenBorrow, _amount, msg.sender);
+
+        // Execute the initial swap to get the loan
+        IUniswapV2Pair(pair).swap(amount0Out, amount1Out, address(this), data);
+    }
     
 }
