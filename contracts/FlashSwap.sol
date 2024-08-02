@@ -24,5 +24,21 @@ contract FlashSwap {
     address private constant BUSD = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
     address private constant USDC = 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d;
     address private constant CAKE = 0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82;
+
+    // FUND SMART CONTRACT
+    // Provides a function to allow contract to be funded.
+    function deposit(
+        address _owner,
+        address _token,
+        uint _amount
+    ) public {
+        IERC20(_token).transferFrom(_owner, address(this), _amount);
+    }
+
+    // GET CONTRACT BALANCE
+    // Allows public view of balance for contract
+    function getBalanceOfToken(address _address) public view returns (uint) {
+        return IERC20(_address).balanceOf(address(this));
+    }
     
 }
