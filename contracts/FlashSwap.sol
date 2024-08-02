@@ -40,5 +40,41 @@ contract FlashSwap {
     function getBalanceOfToken(address _address) public view returns (uint) {
         return IERC20(_address).balanceOf(address(this));
     }
+
+    // PLACE A TRADE
+    // Executed placing a trade
+    function placeTrade(
+        address _fromToken,
+        address _toToken,
+        uint _amountIn
+    ) private returns (uint) {
+        address pair = IUniswapV2Factory(PANCAKE_FACTORY).getPair(_fromToken, _toToken);
+        require(pair != address(0), "Pool does not exist.");
+
+        // Calculate amount out. 
+        address[] memory path = new address[](2);
+        path[0] = _fromToken;
+        path[1] = _toToken;
+
+        uint amountRequired = IUniswapV2Router01(PANCAKE_ROUTER).getAmountsOut(_amountIn, path)[1];
+        console.log("amountRequired: ",amountRequired);
+
+        // Trade variable
+        uint private deadline = block.timestamp + 1 days;
+
+        // Perform Arbitrage - Swap for another token
+        uint amountReceived = IUniswapV2Router01(PANCAKE_ROUTER).swapExactTokensForTokens(
+            _amountIn,
+            amountRequired,
+            path,
+            address(this),
+            deadline
+        )[1];
+        
+        console.log("amountReceived: ",amountReceived);
+        require(amountReceived > 0, "Aborted tx: Trade returnded zero");
+
+        return amountReceived;
+    }
     
 }
