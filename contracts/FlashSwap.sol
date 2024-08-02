@@ -37,7 +37,7 @@ contract FlashSwap {
 
     // GET CONTRACT BALANCE
     // Allows public view of balance for contract
-    function getBalanceOfToken(address _address) public view returns (uint) {
+    function getBalance(address _address) public view returns (uint) {
         return IERC20(_address).balanceOf(address(this));
     }
 
@@ -103,5 +103,54 @@ contract FlashSwap {
         // Execute the initial swap to get the loan
         IUniswapV2Pair(pair).swap(amount0Out, amount1Out, address(this), data);
     }
+
+    function pancakeCall(
+        address _sender,
+        uint _amount0,
+        uint _amount1,
+        bytes calldata _data
+    ) external {
+        // Ensure this request came from the contract.
+        address token0 = IUniswapV2Pair(msg.sender).token0();
+        address token1 = IUniswapV2Pair(msg.sender).token1();
+
+        address pair = IUniswapV2Factory(PANCAKE_FACTORY).getPair(token0, token1);
+        require(msg.sender == pair, "The sender needs to match the pair");
+        require(_sender == address(this), "Sender should match this contract");
+
+        // Decode data for calculating the payment
+        (address tokenBorrow, uint amount, address sender) = abi.decode(_data, (address, uint256, address));
+
+        // Calculate the amount to repay at the end
+        uint fee = ((amount * 3) / 997) + 1;
+        uint amountToRepay = amount + fee;
+
+        // DO ARBITRAGE
+
+        // Assign loan amount
+        uint loanAmount = _amount0 > 0 ? _amount0 : _amount1;
+
+
+        // Place trades
+        uint trade1AcquiredCoin = placeTrade(BUSD, CROX, loanAmount);
+        uint trade2AcquiredCoin = placeTrade(CROX, CAKE, trade1AcquiredCoin);
+        uint trade3AcquiredCoin = placeTrade(CAKE, BUSD, trade2AcquiredCoin);
+
+        // Check profitability
+        bool profitabilityCheck = checkProfitability(amountToRepay, trade3AcquiredCoin);
+        require(profitabilityCheck, "Arbitrage not profitable"); 
+
+        // Withdraw profits
+        IERC20 otherToken = IERC20(BUSD);
+        otherToken.transfer(sender, trade3AcquiredCoin - amountToRepay);
+
+        // pay loan back
+        IERC20(tokenBorrow).transfer(pair, amountToRepay);
+    }
     
+    // CHECK PROFITABILITY
+    // Checks whether output > input
+    function checkProfitability(uint _input, uint _output) internal pure returns (bool) {
+        return _output > _input;
+    }
 }
