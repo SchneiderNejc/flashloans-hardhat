@@ -60,4 +60,18 @@ describe("FlashSwap Contract", () => {
             expect(Number(flashSwapBalanceHuman)).equal(Number(initialFundingHuman));
         })
     });
+
+        it("ensures the contract is funded", async() => {
+            txArbitrage = await FLASHSWAP.startArbitrage(BASE_TOKEN_ADDRESS, BORROW_AMOUNT);
+
+            assert(txArbitrage);
+
+            // Print balances
+            const contractBalanceBUSD = await FLASHSWAP.getBalanceOfToken(BUSD);
+            const formatedBUSDBalance = Number(ethers.utils.formatUnits(contractBalanceBUSD, DECIMALS));
+            console.log("Balance of BUSD: ",formatedBUSDBalance);
+
+            const contractBalanceCROX = await FLASHSWAP.getBalanceOfToken(CROX);
+            const formatedCROXBalance = Number(ethers.utils.formatUnits(contractBalanceCROX, DECIMALS));
+            console.log("Balance of CROX: ", formatedCROXBalance);
 });
