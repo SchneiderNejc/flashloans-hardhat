@@ -14,7 +14,10 @@ module.exports = {
     hardhat: {
       forking: {
         // GOTTA UPDATE THE FOLLOWING LINE TO FORK!!
-        url: process.env.MORALIS_RPC,
+        // ETH mainnet
+        // url: process.env.ETH_RPC,
+
+        url: process.env.BSC_RPC, // BSC netowrk
         // blockNumber: 14390000
       },
     },
@@ -26,8 +29,8 @@ module.exports = {
       ],
     },
     mainnet: {
-      url: "https://bsc-dataseed3.binance.org/",
       chainId: 56,
+      url: "https://bsc-dataseed3.binance.org/", // BSC
     },
   },
 };
