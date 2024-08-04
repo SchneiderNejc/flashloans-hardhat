@@ -13,7 +13,6 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        // GOTTA UPDATE THE FOLLOWING LINE TO FORK!!
         // ETH mainnet
         // url: process.env.ETH_RPC,
 
@@ -23,13 +22,11 @@ module.exports = {
     },
     testnet: {
       url: "https://bsc-testnet.bnbchain.org",
-      chainId: 97,
       account: [
         "", // add PK for testnet deployment
       ],
     },
     mainnet: {
-      chainId: 56,
       url: "https://bsc-dataseed3.binance.org/", // BSC
     },
   },
