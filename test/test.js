@@ -44,4 +44,20 @@ describe("FlashSwap Contract", () => {
         // Fund our Contract - For testing only
         await impersonateFundErc20(tokenBase, BUSD_WHALE, FLASHSWAP.address, initialFundingHuman)
     });
+    
+    describe("Arbitrage Execution", async () => ({
+        it("ensures the contract is funded", async() => {
+            const flashSwapBalance = await FLASHSWAP.getBalanceOfToken(
+                BASE_TOKEN_ADDRESS
+            );
+
+            const flashSwapBalanceHuman = ethers.utils.formatUnits(
+                flashSwapBalance, DECIMALS
+            );
+
+            console.log(flashSwapBalanceHuman);
+
+            expect(Number(flashSwapBalanceHuman)).equal(Number(initialFundingHuman));
+        })
+    });
 });
